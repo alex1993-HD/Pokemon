@@ -15,17 +15,9 @@ class _FilterDialogState extends State<FilterDialog> {
   _FilterDialogState({@required this.filterPokemon});
 
   List<Widget> buildGenerations() {
-    List<String> listGenerations = [
-      "Generation 1",
-      "Generation 2",
-      "Generation 3",
-      "Generation 4",
-      "Generation 5",
-      "Generation 6",
-      "Generation 7",
-    ];
+    List<int> listGenerations = [1, 2, 3, 4, 5, 6, 7];
     List<Widget> generationsWidgets = [];
-    for (String gen in listGenerations) {
+    for (int gen in listGenerations) {
       generationsWidgets.add(GestureDetector(
         child: Container(
             margin: EdgeInsets.fromLTRB(8, 0, 8, 0),
@@ -35,7 +27,7 @@ class _FilterDialogState extends State<FilterDialog> {
               padding: const EdgeInsets.fromLTRB(8, 16, 8, 16),
               child: Center(
                   child: Text(
-                gen,
+                gen.toString(),
                 style: TextStyle(fontWeight: FontWeight.w700),
               )),
             )),
@@ -75,6 +67,7 @@ class _FilterDialogState extends State<FilterDialog> {
   RangeValues _currentRangeValuesAttack = const RangeValues(0, 0);
   RangeValues _currentRangeValuesDefense = const RangeValues(0, 0);
   RangeValues _currentRangeValuesVelocidad = const RangeValues(0, 0);
+  bool _isswitched = false;
 
   @override
   Widget build(BuildContext context) {
@@ -141,12 +134,16 @@ class _FilterDialogState extends State<FilterDialog> {
                 style: TextStyle(fontWeight: FontWeight.bold),
               ),
               Padding(padding: EdgeInsets.only(top: 10)),
+              Text('HP'),
               Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  Container(
-                    child: Center(child: Text('HP')),
-                    width: 70,
+                  Padding(
+                    padding: const EdgeInsets.all(8.0),
+                    child: Container(
+                      child: Center(child: Text('0')),
+                      width: 10,
+                    ),
                   ),
                   Expanded(
                     child: RangeSlider(
@@ -167,15 +164,23 @@ class _FilterDialogState extends State<FilterDialog> {
                           _currentRangeValuesHP.start.round().toString(),
                           _currentRangeValuesHP.end.round().toString()),
                     ),
-                  )
+                  ),
+                  Padding(
+                    padding: const EdgeInsets.all(8.0),
+                    child: Container(
+                      child: Center(child: Text('500')),
+                      width: 25,
+                    ),
+                  ),
                 ],
               ),
+              Text('Ataque'),
               Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   Container(
-                    child: Center(child: Text('Ataque')),
-                    width: 70,
+                    child: Center(child: Text('0')),
+                    width: 30,
                   ),
                   Expanded(
                     child: RangeSlider(
@@ -196,15 +201,20 @@ class _FilterDialogState extends State<FilterDialog> {
                           _currentRangeValuesAttack.start.round().toString(),
                           _currentRangeValuesAttack.end.round().toString()),
                     ),
-                  )
+                  ),
+                  Container(
+                    child: Center(child: Text('500')),
+                    width: 30,
+                  ),
                 ],
               ),
+              Text('Defensa'),
               Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   Container(
-                    child: Center(child: Text('Defensa')),
-                    width: 70,
+                    child: Center(child: Text('0')),
+                    width: 30,
                   ),
                   Expanded(
                     child: RangeSlider(
@@ -225,15 +235,20 @@ class _FilterDialogState extends State<FilterDialog> {
                           _currentRangeValuesDefense.start.round().toString(),
                           _currentRangeValuesDefense.end.round().toString()),
                     ),
-                  )
+                  ),
+                  Container(
+                    child: Center(child: Text('500')),
+                    width: 30,
+                  ),
                 ],
               ),
+              Text('Velocidad'),
               Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   Container(
-                    child: Center(child: Text('Velocidad')),
-                    width: 70,
+                    child: Center(child: Text('0')),
+                    width: 30,
                   ),
                   Expanded(
                     child: RangeSlider(
@@ -254,9 +269,28 @@ class _FilterDialogState extends State<FilterDialog> {
                           _currentRangeValuesVelocidad.start.round().toString(),
                           _currentRangeValuesVelocidad.end.round().toString()),
                     ),
-                  )
+                  ),
+                  Container(
+                    child: Center(child: Text('500')),
+                    width: 30,
+                  ),
                 ],
               ),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Text('Mostrar pokemones legendarios: ',
+                      style: TextStyle(fontWeight: FontWeight.bold)),
+                  Switch(
+                      value: _isswitched,
+                      onChanged: (value) {
+                        setState(() {
+                          _isswitched = value;
+                          this.filterPokemon('legendary', _isswitched);
+                        });
+                      }),
+                ],
+              )
             ],
           )
         ],

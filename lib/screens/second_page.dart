@@ -85,7 +85,7 @@ class _SecondPageState extends State<SecondPage> {
                             color: textColor[pokemon.type], fontSize: 30)),
                     Padding(
                       padding: const EdgeInsets.fromLTRB(0, 1, 0, 10),
-                      child: Text('Pokemon de ${pokemon.generation}',
+                      child: Text('Generación ${pokemon.generation}',
                           style: TextStyle(
                               color: textColor[pokemon.type], fontSize: 14)),
                     ),

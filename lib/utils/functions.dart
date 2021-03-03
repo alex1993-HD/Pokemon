@@ -1,6 +1,8 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
+String capitalize(String s) => s[0].toUpperCase() + s.substring(1);
+
 Map<String, Color> typeColor = {
   "Bug": Colors.green[900],
   "Dark": Colors.black,

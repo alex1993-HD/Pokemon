@@ -6,6 +6,7 @@ import 'package:practicaresponse/models/types.dart';
 import 'package:practicaresponse/repo/pokemon_repo.dart';
 import 'package:practicaresponse/screens/second_page.dart';
 import 'package:practicaresponse/utils/functions.dart';
+import 'package:flutter_typeahead/flutter_typeahead.dart';
 
 // cuando se crea una pantalla pasa por build
 
@@ -38,8 +39,6 @@ class _MyHomePageState extends State<MyHomePage> {
 
   String msj = '';
   bool busqueda = false;
-
-  String capitalize(String s) => s[0].toUpperCase() + s.substring(1);
 
   Widget typesBuild(types, Pokemon pokemon) {
     List<Widget> ListTypes = [];
@@ -115,8 +114,10 @@ class _MyHomePageState extends State<MyHomePage> {
                     Container(
                       child: Column(children: [
                         typesBuild(pokemon.types, pokemon),
-                        Text('${pokemon.gen}',
-                            style: TextStyle(color: textColor[pokemon.type]))
+                        Text('Gen ${pokemon.generation}',
+                            style: TextStyle(color: textColor[pokemon.type])),
+                        Text('${pokemon.isLegendary}',
+                            style: TextStyle(color: textColor[pokemon.type])),
                       ]),
                     ),
                     Expanded(
@@ -142,13 +143,14 @@ class _MyHomePageState extends State<MyHomePage> {
   @override
   Widget build(BuildContext context) {
     print("AQUIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIII");
+
     void limpiarBusqueda() {
       msj = '';
       filters.remove('name');
       filterPokemon(null, null);
     }
 
-    final _controller = TextEditingController();
+    //final _controller = TextEditingController();
 
     Widget activarBotonCancelarBusqueda(busqueda) {
       if (busqueda == true) {
@@ -156,13 +158,13 @@ class _MyHomePageState extends State<MyHomePage> {
           icon: Icon(Icons.clear_rounded),
           onPressed: () {
             setState(() {
-              //_controller.clear();
               limpiarBusqueda();
               busqueda = false;
             });
           },
         );
       } else {
+        //_controller.clear();
         return Container();
       }
     }
@@ -181,23 +183,24 @@ class _MyHomePageState extends State<MyHomePage> {
                 Icons.search,
                 color: Colors.white,
               )),
+          //controller: _controller,
           onChanged: (textBusqueda) {
             if (textBusqueda.isNotEmpty) {
               // Cuando lo escriba deben aparecer los pokemones que escriba el usuario
               setState(() {
                 busqueda = true;
                 msj = 'Resultados de la busqueda:';
-                filterPokemon('name', textBusqueda);
+                filterPokemon('name', textBusqueda.toLowerCase());
               });
             } else {
               // Regresamos a la lista personalizada o completa
               setState(() {
-                limpiarBusqueda();
+                //textBusqueda = '';
                 busqueda = false;
+                limpiarBusqueda();
               });
             }
           },
-          //controller: _controller,
         ),
         leading: IconButton(
           icon: Icon(Icons.filter_list),
@@ -269,7 +272,7 @@ class _MyHomePageState extends State<MyHomePage> {
         values[0] <= elem.defense && values[1] >= elem.defense,
     'speed': (elem, values) =>
         values[0] <= elem.speed && values[1] >= elem.speed,
-    'legendary': (elem, values) => elem.legendary,
+    'legendary': (elem, values) => elem.isLegendary == true,
     'name': (elem, name) => elem.name.contains(name)
   };
 
@@ -285,13 +288,13 @@ class _MyHomePageState extends State<MyHomePage> {
 
   // se tiene que hacer un filtro por lvl AtK range <- Hecho
 
-  // se tiene que hacer un filtro por Legendario o no legendario
+  // se tiene que hacer un filtro por Legendario o no legendario <-
 
   // se tiene que hacer un filtro por generación <- Hecho
 
-  bool whereGeneration(element) {
-    return element.generation;
-  }
+  // bool whereGeneration(element) {
+  //   return element.generation;
+  // }
 
   void filterPokemon(filter, value) {
     if (filter != null) {
@@ -334,6 +337,8 @@ class _MyHomePageState extends State<MyHomePage> {
       setState(() {
         if (offset + 20 <= this.listPokemon.length) {
           offset += 20;
+        } else {
+          offset = this.listPokemon.length;
         }
       });
     }
