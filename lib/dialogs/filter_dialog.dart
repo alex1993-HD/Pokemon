@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:practicaresponse/utils/functions.dart';
 
 class FilterDialog extends StatefulWidget {
   final filterPokemon;
@@ -15,9 +16,8 @@ class _FilterDialogState extends State<FilterDialog> {
   _FilterDialogState({@required this.filterPokemon});
 
   List<Widget> buildGenerations() {
-    List<int> listGenerations = [1, 2, 3, 4, 5, 6, 7];
     List<Widget> generationsWidgets = [];
-    for (int gen in listGenerations) {
+    for (String gen in listGenerations) {
       generationsWidgets.add(GestureDetector(
         child: Container(
             margin: EdgeInsets.fromLTRB(8, 0, 8, 0),
@@ -27,7 +27,7 @@ class _FilterDialogState extends State<FilterDialog> {
               padding: const EdgeInsets.fromLTRB(8, 16, 8, 16),
               child: Center(
                   child: Text(
-                gen.toString(),
+                gen,
                 style: TextStyle(fontWeight: FontWeight.w700),
               )),
             )),
@@ -38,29 +38,6 @@ class _FilterDialogState extends State<FilterDialog> {
     }
     return generationsWidgets;
   }
-
-  List<String> listTypes = [
-    "Normal",
-    "Fighting",
-    "Flying",
-    "Poison",
-    "Ground",
-    "Rock",
-    "Bug",
-    "Ghost",
-    "Steel",
-    "Fire",
-    "Water",
-    "Grass",
-    "Electric",
-    "Psychic",
-    "Ice",
-    "Dragon",
-    "Dark",
-    "Fairy",
-    "Unknown",
-    "Shadow"
-  ];
 
   String dropdownValue = "Grass";
   RangeValues _currentRangeValuesHP = const RangeValues(0, 0);
@@ -118,7 +95,7 @@ class _FilterDialogState extends State<FilterDialog> {
                 onChanged: (String newValue) {
                   setState(() {
                     dropdownValue = newValue;
-                    this.filterPokemon('types', newValue);
+                    this.filterPokemon('type1', newValue);
                   });
                 },
                 items: listTypes.map<DropdownMenuItem<String>>((String value) {
@@ -279,14 +256,20 @@ class _FilterDialogState extends State<FilterDialog> {
               Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  Text('Mostrar pokemones legendarios: ',
+                  Text('Filtrar/mostrar pokemones legendarios: ',
                       style: TextStyle(fontWeight: FontWeight.bold)),
                   Switch(
                       value: _isswitched,
                       onChanged: (value) {
+                        String resp;
                         setState(() {
                           _isswitched = value;
-                          this.filterPokemon('legendary', _isswitched);
+                          if (value == true) {
+                            resp = "Legendary";
+                          } else {
+                            resp = "No legendary";
+                          }
+                          this.filterPokemon('legendary', resp);
                         });
                       }),
                 ],

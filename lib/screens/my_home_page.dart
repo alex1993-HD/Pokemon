@@ -36,6 +36,7 @@ class _MyHomePageState extends State<MyHomePage> {
 
   Future<List<Pokemon>> futurePokemon;
   ScrollController _scrollController = ScrollController();
+  final _controller = TextEditingController();
 
   String msj = '';
   bool busqueda = false;
@@ -48,7 +49,7 @@ class _MyHomePageState extends State<MyHomePage> {
         decoration: BoxDecoration(
             color: darkenColor(typeColor[type]),
             borderRadius: BorderRadius.all(Radius.circular(5))),
-        child: Text(type, style: TextStyle(color: Colors.white)),
+        child: Text(type, style: TextStyle(color: textColor[type])),
       ));
       ListTypes.add(Padding(
         padding: EdgeInsets.only(bottom: 10),
@@ -66,19 +67,20 @@ class _MyHomePageState extends State<MyHomePage> {
   Widget chipsFiltersBuild(context) {
     List<Widget> chipsFilter = [];
     filters.forEach((key, value) {
-      if (key != 'name') {
-        chipsFilter.add(RawChip(
-          label: Text('$key : $value'),
-          onDeleted: () {
-            setState(() {
-              _isDeleted = true;
-              filters.remove(key);
-              filterPokemon(null, null);
-            });
-          },
-          onPressed: () {},
-        ));
-      }
+      msj = 'Resultados de la busqueda/filtración';
+      chipsFilter.add(RawChip(
+        label: Text('$key : $value'),
+        onDeleted: () {
+          setState(() {
+            _isDeleted = true;
+            filters.remove(key);
+            filterPokemon(null, null);
+            msj = '';
+            _controller.clear();
+          });
+        },
+        onPressed: () {},
+      ));
     });
     return Container(
       height: 100,
@@ -102,8 +104,11 @@ class _MyHomePageState extends State<MyHomePage> {
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
               Text(
-                "${capitalize(pokemon.name)}",
-                style: TextStyle(fontSize: 20, color: textColor[pokemon.type]),
+                "${pokemon.name}",
+                style: TextStyle(
+                    fontSize: 20,
+                    color: textColor[pokemon.type],
+                    fontWeight: FontWeight.bold),
               ),
               Padding(
                 padding: const EdgeInsets.all(8.0),
@@ -114,9 +119,10 @@ class _MyHomePageState extends State<MyHomePage> {
                     Container(
                       child: Column(children: [
                         typesBuild(pokemon.types, pokemon),
-                        Text('Gen ${pokemon.generation}',
+                        Text(
+                            '${pokemon.generation.replaceAll(RegExp(r'Generation'), 'Gen')}',
                             style: TextStyle(color: textColor[pokemon.type])),
-                        Text('${pokemon.isLegendary}',
+                        Text('${pokemon.isLegendary.substring(0, 6)}',
                             style: TextStyle(color: textColor[pokemon.type])),
                       ]),
                     ),
@@ -150,55 +156,73 @@ class _MyHomePageState extends State<MyHomePage> {
       filterPokemon(null, null);
     }
 
-    //final _controller = TextEditingController();
-
-    Widget activarBotonCancelarBusqueda(busqueda) {
-      if (busqueda == true) {
-        return IconButton(
-          icon: Icon(Icons.clear_rounded),
-          onPressed: () {
-            setState(() {
-              limpiarBusqueda();
-              busqueda = false;
-            });
-          },
-        );
-      } else {
-        //_controller.clear();
-        return Container();
-      }
-    }
-
     return Scaffold(
       appBar: AppBar(
-        title: TextField(
-          cursorColor: Colors.white,
-          decoration: InputDecoration(
-              enabledBorder: UnderlineInputBorder(
-                  borderSide: BorderSide(color: Colors.white)),
-              focusedBorder: UnderlineInputBorder(
-                  borderSide: BorderSide(color: Colors.white)),
-              hintText: "Buscar pokemon...",
-              prefixIcon: Icon(
-                Icons.search,
-                color: Colors.white,
-              )),
-          //controller: _controller,
-          onChanged: (textBusqueda) {
-            if (textBusqueda.isNotEmpty) {
-              // Cuando lo escriba deben aparecer los pokemones que escriba el usuario
-              setState(() {
-                busqueda = true;
-                msj = 'Resultados de la busqueda:';
-                filterPokemon('name', textBusqueda.toLowerCase());
-              });
+        title: TypeAheadField(
+          textFieldConfiguration: TextFieldConfiguration(
+              autofocus: false,
+              decoration: InputDecoration(
+                  enabledBorder: UnderlineInputBorder(
+                      borderSide: BorderSide(color: Colors.white)),
+                  focusedBorder: UnderlineInputBorder(
+                      borderSide: BorderSide(color: Colors.white)),
+                  hintText: "Buscar pokemon...",
+                  prefixIcon: Icon(
+                    Icons.search,
+                    color: Colors.white,
+                  )),
+              controller: _controller),
+          suggestionsCallback: (String pattern) {
+            //Necesito crear una lista de todos los nombres de los pokemon ya esa completos o filtrados
+            String pat;
+            if (pattern.isEmpty) {
+              pat = pattern.toLowerCase();
             } else {
-              // Regresamos a la lista personalizada o completa
-              setState(() {
-                //textBusqueda = '';
-                busqueda = false;
-                limpiarBusqueda();
-              });
+              pat = capitalize(pattern);
+            }
+            return completePokemon
+                    .where((element) {
+                      return element.name.startsWith(pat);
+                    })
+                    .toList()
+                    .map((e) => e.name)
+                    .toSet()
+                    .toList() +
+                completePokemon
+                    .where((element) {
+                      return element.type.startsWith(pat);
+                    })
+                    .toList()
+                    .map((e) => e.type)
+                    .toSet()
+                    .toList() +
+                completePokemon
+                    .where((element) => element.generation.startsWith(pat))
+                    .toList()
+                    .map((e) => e.generation)
+                    .toSet()
+                    .toList() +
+                completePokemon
+                    .where((element) => element.isLegendary.startsWith(pat))
+                    .toList()
+                    .map((e) => e.isLegendary)
+                    .toSet()
+                    .toList();
+          },
+          itemBuilder: (context, suggestion) {
+            //Tengo que recuperar cada uno de las sugerencias y mostrarlos en un ListTile
+            return ListTile(title: Text(suggestion));
+          },
+          onSuggestionSelected: (suggestion) {
+            if (listTypes.contains(suggestion)) {
+              filterPokemon('type2', suggestion);
+            } else if (listGenerations.contains(suggestion)) {
+              filterPokemon('generation', suggestion);
+            } else if (suggestion == 'Legendary' ||
+                suggestion == 'No legendary') {
+              filterPokemon('legendary', suggestion);
+            } else {
+              filterPokemon('name', suggestion);
             }
           },
         ),
@@ -207,8 +231,19 @@ class _MyHomePageState extends State<MyHomePage> {
           onPressed: () {
             showNow();
           },
+          tooltip: "Filtrar",
         ),
-        actions: [activarBotonCancelarBusqueda(busqueda)],
+        actions: <Widget>[
+          IconButton(
+            icon: Icon(Icons.clear_rounded),
+            onPressed: () {
+              setState(() {
+                _controller.clear();
+              });
+            },
+            tooltip: "Limpiar campo de búsqueda",
+          )
+        ],
       ),
       body: Column(
         children: [
@@ -233,7 +268,6 @@ class _MyHomePageState extends State<MyHomePage> {
                         future: fetchedPokemon,
                         builder: (context, snapshot) {
                           if (snapshot.hasData && snapshot != null) {
-                            //return verificarFiltroTipos(snapshot.data[index]);
                             return buildCardPokemon(listPokemon[index]);
                           } else if (snapshot.hasError) {
                             return Text("${snapshot.error}");
@@ -260,10 +294,12 @@ class _MyHomePageState extends State<MyHomePage> {
   int valorInicialAtk = 0, valorFinalAtk = 0;
   int valorInicialDef = 0, valorFinalDef = 0;
   int valorInicialSP = 0, valorFinalSP = 0;
+  bool type1act = false;
   Map<String, dynamic> filters = {};
 
   Map<String, Function> filterFunctions = {
-    'types': (elem, type) => elem.types.contains(type),
+    'type1': (elem, type) => elem.types.contains(type),
+    'type2': (elem, type) => elem.types.contains(type),
     'generation': (elem, generation) => elem.generation == generation,
     'hp': (elem, values) => values[0] <= elem.hp && values[1] >= elem.hp,
     'attack': (elem, values) =>
@@ -272,7 +308,7 @@ class _MyHomePageState extends State<MyHomePage> {
         values[0] <= elem.defense && values[1] >= elem.defense,
     'speed': (elem, values) =>
         values[0] <= elem.speed && values[1] >= elem.speed,
-    'legendary': (elem, values) => elem.isLegendary == true,
+    'legendary': (elem, state) => elem.isLegendary == state,
     'name': (elem, name) => elem.name.contains(name)
   };
 
@@ -288,7 +324,7 @@ class _MyHomePageState extends State<MyHomePage> {
 
   // se tiene que hacer un filtro por lvl AtK range <- Hecho
 
-  // se tiene que hacer un filtro por Legendario o no legendario <-
+  // se tiene que hacer un filtro por Legendario o no legendario <-Hecho
 
   // se tiene que hacer un filtro por generación <- Hecho
 

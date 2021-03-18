@@ -45,6 +45,15 @@ Map<String, Color> textColor = {
   "Water": Colors.white,
 };
 
+Map<String, Color> textBaseStatColor = {
+  "HP": Colors.white,
+  "Attack": Colors.black,
+  "Defense": Colors.black,
+  "Speed Attack": Colors.white,
+  "Speed Defense": Colors.black,
+  "Speed": Colors.white,
+};
+
 Color darkenColor(Color color) {
   final hsl = HSLColor.fromColor(color);
   final hslDark = hsl
@@ -57,3 +66,38 @@ String getGenerationFromDescription(String description) {
   RegExp regexp = new RegExp(r'Generation\s[0-9]');
   return regexp.allMatches(description).map((m) => m[0]).toList()[0];
 }
+
+List<String> listTypes = [
+  "Normal",
+  "Fighting",
+  "Flying",
+  "Poison",
+  "Ground",
+  "Rock",
+  "Bug",
+  "Ghost",
+  "Steel",
+  "Fire",
+  "Water",
+  "Grass",
+  "Electric",
+  "Psychic",
+  "Ice",
+  "Dragon",
+  "Dark",
+  "Fairy",
+  "Unknown",
+  "Shadow"
+];
+
+List<String> listGenerations = [
+  "Generation 1",
+  "Generation 2",
+  "Generation 3",
+  "Generation 4",
+  "Generation 5",
+  "Generation 6",
+  "Generation 7"
+];
+
+List<bool> listLegendary = [true, false];

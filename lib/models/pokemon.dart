@@ -16,8 +16,8 @@ class Pokemon {
   double height, weight;
   List<String> abilities;
   List<String> types;
-  int total, hp, attack, defense, speedAttack, speedDefense, speed, generation;
-  bool isLegendary;
+  int total, hp, attack, defense, speedAttack, speedDefense, speed;
+  String isLegendary, generation;
 
   Pokemon(
       {this.name,
@@ -55,6 +55,7 @@ class Pokemon {
     for (var type in json['types']) {
       types.add(type.toString());
     }
+
     return Pokemon(
         height: json["height"].toDouble(),
         weight: json["weight"].toDouble(),
@@ -67,11 +68,12 @@ class Pokemon {
         speedAttack: json['speedAttack'],
         speedDefense: json['speedDefense'],
         speed: json['speed'],
-        name: json['name'].toString().toLowerCase(),
-        generation: json['generation'],
+        name: json['name'],
+        generation: "Generation " + json['generation'].toString(),
         type: capitalize(typePokemon),
         photo: photoUrlImage,
         thumbnail: photoUrlThumbail,
-        isLegendary: json['is_legendary']);
+        isLegendary:
+            json['is_legendary'] == true ? "Legendary" : "No legendary");
   }
 }
